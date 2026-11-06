@@ -1,0 +1,1 @@
+"""Unisinos/USP geospatial API."""

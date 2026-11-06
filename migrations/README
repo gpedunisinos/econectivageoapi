@@ -1,0 +1,4 @@
+Schema migrations for the Unisinos USP Geo API.
+
+Create revisions with `alembic revision -m "description"` and apply them with
+`alembic upgrade head`.

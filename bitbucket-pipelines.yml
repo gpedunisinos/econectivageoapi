@@ -1,0 +1,14 @@
+image: python:3.12-bookworm
+
+pipelines:
+  default:
+    - step:
+        name: Testes e análise estática
+        caches:
+          - pip
+        script:
+          - apt-get update && apt-get install -y gdal-bin libgdal-dev
+          - pip install -e '.[dev]'
+          - ruff check .
+          - pytest --cov=app
+
