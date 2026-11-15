@@ -1,0 +1,729 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Unisinos USP Geo API",
+    "description": "Consulta contexto socioambiental por coordenada e publica camadas geográficas nacionais em tiles.",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/biodiversity/nearby": {
+      "get": {
+        "tags": [
+          "biodiversity"
+        ],
+        "summary": "Nearby",
+        "description": "Up to 12 species from a sample of the 200 latest public, licensed fauna observations.",
+        "operationId": "nearby_biodiversity_nearby_get",
+        "parameters": [
+          {
+            "name": "latitude",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "maximum": 90,
+              "minimum": -90,
+              "title": "Latitude"
+            }
+          },
+          {
+            "name": "longitude",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "maximum": 180,
+              "minimum": -180,
+              "title": "Longitude"
+            }
+          },
+          {
+            "name": "radius_m",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "enum": [
+                500,
+                1000,
+                5000
+              ],
+              "default": 1000,
+              "title": "Radius M"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BiodiversityResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/biodiversity/observations": {
+      "get": {
+        "tags": [
+          "biodiversity"
+        ],
+        "summary": "Observations",
+        "description": "Up to 100 public observations in a viewport of at most 3 degrees per axis.",
+        "operationId": "observations_biodiversity_observations_get",
+        "parameters": [
+          {
+            "name": "north",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "maximum": 90,
+              "minimum": -90,
+              "title": "North"
+            }
+          },
+          {
+            "name": "south",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "maximum": 90,
+              "minimum": -90,
+              "title": "South"
+            }
+          },
+          {
+            "name": "east",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "maximum": 180,
+              "minimum": -180,
+              "title": "East"
+            }
+          },
+          {
+            "name": "west",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "maximum": 180,
+              "minimum": -180,
+              "title": "West"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BiodiversityResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "BiodiversityResponse": {
+        "properties": {
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "fetched_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Fetched At"
+          },
+          "cached": {
+            "type": "boolean",
+            "title": "Cached"
+          },
+          "radius_m": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Radius M"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          },
+          "sampled_records": {
+            "type": "integer",
+            "title": "Sampled Records"
+          },
+          "total_matching_observations": {
+            "type": "integer",
+            "title": "Total Matching Observations"
+          },
+          "limited": {
+            "type": "boolean",
+            "title": "Limited"
+          },
+          "observations": {
+            "items": {
+              "$ref": "#/components/schemas/Observation"
+            },
+            "type": "array",
+            "title": "Observations"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source",
+          "fetched_at",
+          "cached",
+          "radius_m",
+          "limit",
+          "sampled_records",
+          "total_matching_observations",
+          "limited",
+          "observations"
+        ],
+        "title": "BiodiversityResponse"
+      },
+      "ContextRequest": {
+        "properties": {
+          "latitude": {
+            "type": "number",
+            "maximum": 90.0,
+            "minimum": -90.0,
+            "title": "Latitude"
+          },
+          "longitude": {
+            "type": "number",
+            "maximum": 180.0,
+            "minimum": -180.0,
+            "title": "Longitude"
+          }
+        },
+        "type": "object",
+        "required": [
+          "latitude",
+          "longitude"
+        ],
+        "title": "ContextRequest"
+      },
+      "ContextResponse": {
+        "properties": {
+          "biome": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Biome"
+          },
+          "land_cover": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Land Cover"
+          },
+          "vegetation_percent": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vegetation Percent"
+          },
+          "water_distance_m": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Water Distance M"
+          },
+          "altitude_m": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Altitude M"
+          },
+          "slope_percent": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Slope Percent"
+          },
+          "built_up_percent": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Built Up Percent"
+          },
+          "population_density_km2": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Population Density Km2"
+          },
+          "sources": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Sources"
+          },
+          "generated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Generated At"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          }
+        },
+        "type": "object",
+        "required": [
+          "generated_at"
+        ],
+        "title": "ContextResponse"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HealthResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version"
+          },
+          "database": {
+            "type": "boolean",
+            "title": "Database"
+          },
+          "configured_layers": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Configured Layers"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "version",
+          "database",
+          "configured_layers"
+        ],
+        "title": "HealthResponse"
+      },
+      "LayerDefinition": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "data_type": {
+            "type": "string",
+            "enum": [
+              "raster",
+              "vector"
+            ],
+            "title": "Data Type"
+          },
+          "tile_format": {
+            "type": "string",
+            "enum": [
+              "png",
+              "jpg",
+              "pbf"
+            ],
+            "title": "Tile Format"
+          },
+          "tile_url": {
+            "type": "string",
+            "title": "Tile Url"
+          },
+          "map_role": {
+            "type": "string",
+            "enum": [
+              "basemap",
+              "overlay"
+            ],
+            "title": "Map Role",
+            "default": "overlay"
+          },
+          "attribution": {
+            "type": "string",
+            "title": "Attribution",
+            "default": ""
+          },
+          "default_opacity": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Default Opacity"
+          },
+          "min_zoom": {
+            "type": "integer",
+            "title": "Min Zoom"
+          },
+          "max_zoom": {
+            "type": "integer",
+            "title": "Max Zoom"
+          },
+          "available": {
+            "type": "boolean",
+            "title": "Available"
+          },
+          "legend": {
+            "items": {
+              "$ref": "#/components/schemas/LegendItem"
+            },
+            "type": "array",
+            "title": "Legend"
+          },
+          "source": {
+            "$ref": "#/components/schemas/LayerSource"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "description",
+          "data_type",
+          "tile_format",
+          "tile_url",
+          "default_opacity",
+          "min_zoom",
+          "max_zoom",
+          "available",
+          "legend",
+          "source"
+        ],
+        "title": "LayerDefinition"
+      },
+      "LayerSource": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "version",
+          "url"
+        ],
+        "title": "LayerSource"
+      },
+      "LegendItem": {
+        "properties": {
+          "value": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Value"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "color": {
+            "type": "string",
+            "title": "Color"
+          }
+        },
+        "type": "object",
+        "required": [
+          "value",
+          "label",
+          "color"
+        ],
+        "title": "LegendItem"
+      },
+      "Observation": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "taxon_id": {
+            "type": "integer",
+            "title": "Taxon Id"
+          },
+          "scientific_name": {
+            "type": "string",
+            "title": "Scientific Name"
+          },
+          "common_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Common Name"
+          },
+          "observed_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observed On"
+          },
+          "latitude": {
+            "type": "number",
+            "title": "Latitude"
+          },
+          "longitude": {
+            "type": "number",
+            "title": "Longitude"
+          },
+          "approximate_location": {
+            "type": "boolean",
+            "title": "Approximate Location"
+          },
+          "accuracy_m": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Accuracy M"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
+          "photo_url": {
+            "type": "string",
+            "title": "Photo Url"
+          },
+          "photo_attribution": {
+            "type": "string",
+            "title": "Photo Attribution"
+          },
+          "photo_license": {
+            "type": "string",
+            "title": "Photo License"
+          },
+          "distance_m": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Distance M"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "taxon_id",
+          "scientific_name",
+          "common_name",
+          "observed_on",
+          "latitude",
+          "longitude",
+          "approximate_location",
+          "accuracy_m",
+          "url",
+          "photo_url",
+          "photo_attribution",
+          "photo_license"
+        ],
+        "title": "Observation"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

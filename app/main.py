@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.biodiversity import router as biodiversity_router
 from app.api.routes import router
 from app.config import get_settings
 from app.database import close_pool
@@ -34,6 +35,7 @@ def create_app() -> FastAPI:
             allow_headers=["Authorization", "Content-Type"],
         )
     app.include_router(router)
+    app.include_router(biodiversity_router)
     return app
 
 

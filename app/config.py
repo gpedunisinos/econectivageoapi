@@ -33,6 +33,10 @@ class Settings(BaseSettings):
     )
     esri_timeout_seconds: float = 15
 
+    biodiversity_cache_path: str = "/data/biodiversity/cache.sqlite3"
+    biodiversity_cache_seconds: int = Field(default=21600, ge=60)
+    biodiversity_daily_limit: int = Field(default=9000, ge=1, le=10000)
+
     land_cover_radius_m: float = 250
     slope_radius_m: float = 100
 

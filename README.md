@@ -237,3 +237,7 @@ Esta API integra a plataforma Educação OnLIFE, cujo desenvolvimento conta com 
 </p>
 
 Logos de origem institucional: [FAPERGS](https://fapergs.rs.gov.br/identidade-visual) e [FAPESP](https://fapesp.br/). As marcas pertencem às respectivas instituições; o logo branco original da FAPESP é apresentado proporcionalmente sobre fundo azul para manter a legibilidade.
+
+## Fauna observada no entorno
+
+O piloto iNaturalist adiciona consultas de fauna por raio ou área visível, com cache persistente e quota compartilhada. Consulte o [contrato, fontes, limites e operação](docs/biodiversity.md).
