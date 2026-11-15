@@ -12,6 +12,7 @@ services:
       - ./data/processed:/data/processed:ro
       - ./data/raw:/data/raw:ro
       - tile_cache:/data/tile-cache
+      - biodiversity_cache:/data/biodiversity
 
   postgis:
     image: postgis/postgis:16-3.4
@@ -33,3 +34,4 @@ services:
 volumes:
   postgis_data:
   tile_cache:
+  biodiversity_cache:
