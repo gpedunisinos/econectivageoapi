@@ -1,18 +1,38 @@
-from contextlib import asynccontextmanager
+import asyncio
+import logging
+from contextlib import asynccontextmanager, suppress
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.biodiversity import router as biodiversity_router
+from app.api.deter import router as deter_router
 from app.api.routes import router
 from app.config import get_settings
 from app.database import close_pool
+from app.services.deter import sync_snapshot
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    yield
-    close_pool()
+    async def refresh():
+        while True:
+            try:
+                await asyncio.to_thread(sync_snapshot)
+            except Exception:
+                logging.getLogger(__name__).exception(
+                    "DETER refresh failed; last snapshot retained"
+                )
+            await asyncio.sleep(3600)
+
+    task = asyncio.create_task(refresh())
+    try:
+        yield
+    finally:
+        task.cancel()
+        with suppress(asyncio.CancelledError):
+            await task
+        close_pool()
 
 
 def create_app() -> FastAPI:
@@ -36,6 +56,7 @@ def create_app() -> FastAPI:
         )
     app.include_router(router)
     app.include_router(biodiversity_router)
+    app.include_router(deter_router)
     return app
 
 

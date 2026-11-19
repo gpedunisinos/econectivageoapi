@@ -81,6 +81,13 @@ class RasterTileService:
         self.settings = settings
 
     def render(self, layer_id: str, z: int, x: int, y: int) -> bytes:
+        if layer_id == "deter-amazonia":
+            from app.services.deter import cached_tile, state
+
+            snapshot = state()
+            if not snapshot:
+                raise FileNotFoundError("DETER não importado")
+            return cached_tile(str(snapshot["fetched_at"]), z, x, y)
         cache_path = self._cache_path(layer_id, z, x, y)
         try:
             return cache_path.read_bytes()

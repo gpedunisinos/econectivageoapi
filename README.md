@@ -241,3 +241,37 @@ Logos de origem institucional: [FAPERGS](https://fapergs.rs.gov.br/identidade-vi
 ## Fauna observada no entorno
 
 O piloto iNaturalist adiciona consultas de fauna por raio ou área visível, com cache persistente e quota compartilhada. Consulte o [contrato, fontes, limites e operação](docs/biodiversity.md).
+
+## Avisos DETER Amazônia — TerraBrasilis
+
+A integração `/deter/nearby?latitude=...&longitude=...&radius_m=1000` consulta um
+snapshot local dos últimos **365 dias** de avisos públicos em áreas de floresta na
+Amazônia. Raios aceitos: 500, 1000 e 5000 metros. Retorna cobertura, período,
+classes, quantidade, data de sincronização e indicação de dados desatualizados.
+Ausência de avisos não comprova ausência de alterações ambientais. Os avisos
+DETER não equivalem à taxa anual de desmatamento do PRODES.
+
+A camada opcional `deter-amazonia` está disponível no catálogo após a primeira
+importação e é exibida entre os zooms 10 e 18, com cache limitado a 256 tiles.
+A versão do cache acompanha a sincronização. Credenciais permanecem no backend.
+
+Primeira carga, após `alembic upgrade head`:
+
+```bash
+python -c 'from app.services.deter import sync_snapshot; print(sync_snapshot(force=True))'
+```
+
+O processo usa o ZIP oficial do INPE com GDAL `/vsizip`, sem extrair o acervo todo.
+Limites: ZIP 512 MiB, conteúdo descompactado declarado 2 GiB, seleção 256 MiB,
+100 mil registros, conversão 180 segundos e margem livre mínima de 2 GiB.
+A troca do snapshot é transacional, protegida por advisory lock; falhas preservam
+a carga anterior. Geometrias inválidas são reparadas, vazias são rejeitadas e
+identificadores repetidos da fonte não são usados sozinhos como chave.
+Arquivos temporários são removidos. Cada instância verifica a necessidade de
+atualização a cada hora; após a primeira carga a atualização ocorre, no máximo,
+uma vez por dia. Não são necessários cron, novos serviços ou alterações de `.env`.
+
+Fonte: <https://terrabrasilis.dpi.inpe.br/downloads/>.
+A implantação inicial inclui somente DETER Amazônia; não inclui PRODES, DETER
+Cerrado ou avisos em áreas de Não Floresta. Indicação de cobertura refere-se ao
+bioma; o produto é restrito às áreas de floresta monitoradas pelo DETER Amazônia.

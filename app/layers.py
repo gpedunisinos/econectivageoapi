@@ -32,7 +32,41 @@ def _mapbiomas_legend() -> list[LegendItem]:
 
 
 def build_layer_catalog(settings: Settings) -> list[LayerDefinition]:
+    from time import monotonic
+
+    from app.services.deter import catalog_state
+
+    try:
+        snapshot = catalog_state(int(monotonic() / 30))
+    except Exception:
+        snapshot = None
     return [
+        LayerDefinition(
+            id="deter-amazonia",
+            name="Avisos DETER — Amazônia",
+            description="Avisos dos últimos 365 dias; não representam a taxa PRODES. "
+            "Cobertura: Amazônia. Amplie o mapa para visualizar.",
+            data_type="raster",
+            tile_format="png",
+            tile_url="/tiles/deter-amazonia/{z}/{x}/{y}.png",
+            attribution="INPE / TerraBrasilis — DETER Amazônia",
+            default_opacity=0.75,
+            min_zoom=10,
+            max_zoom=18,
+            available=snapshot is not None,
+            legend=[
+                LegendItem(
+                    value="notice",
+                    label="Avisos de alteração da cobertura vegetal",
+                    color="#e34a33",
+                )
+            ],
+            source=LayerSource(
+                name="INPE — DETER Amazônia",
+                version=str(snapshot["fetched_at"]) if snapshot else "Não importado",
+                url="https://terrabrasilis.dpi.inpe.br/",
+            ),
+        ),
         LayerDefinition(
             id="satellite",
             name="Imagem de satélite",
@@ -41,9 +75,7 @@ def build_layer_catalog(settings: Settings) -> list[LayerDefinition]:
             tile_format="jpg",
             tile_url="/tiles/satellite/{z}/{x}/{y}.jpg",
             map_role="basemap",
-            attribution=(
-                "Imagem © Esri, Maxar, Earthstar Geographics e GIS User Community"
-            ),
+            attribution=("Imagem © Esri, Maxar, Earthstar Geographics e GIS User Community"),
             default_opacity=1,
             min_zoom=0,
             max_zoom=19,

@@ -5,5 +5,5 @@ from alembic.script import ScriptDirectory
 def test_migration_history_has_single_head() -> None:
     scripts = ScriptDirectory.from_config(Config("alembic.ini"))
 
-    assert scripts.get_heads() == ["20260829_0001"]
+    assert scripts.get_heads() == ["20261119_0002"]
     assert scripts.get_base() == "20260829_0001"
