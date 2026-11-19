@@ -75,6 +75,10 @@ class VectorRasterTileService:
         return min_x, max_y - size, min_x + size, max_y
 
     def _draw(self, draw, geometry, layer_id, row, min_x, min_y, max_x, max_y):
+        # Bounding-box matches can clip to empty geometries at tile boundaries.
+        if geometry.is_empty:
+            return
+
         def point(coordinate):
             px = (coordinate[0] - min_x) / (max_x - min_x) * TILE_SIZE
             py = (max_y - coordinate[1]) / (max_y - min_y) * TILE_SIZE
